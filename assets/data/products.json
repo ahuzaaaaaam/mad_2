@@ -1,0 +1,74 @@
+[
+  {
+    "id": "1",
+    "name": "Pepperoni Pizza",
+    "description": "Savory pepperoni, melted mozzarella, and zesty tomato sauce on a classic crust.",
+    "price": 14.99,
+    "image_url": "https://www.cherryonmysundae.com/wp-content/uploads/2021/10/pepperoni-pizza-8.jpg",
+    "veg": false,
+    "featured": true
+  },
+  {
+    "id": "2",
+    "name": "Hawaiian Pizza",
+    "description": "Sweet pineapple, savory ham, and melted mozzarella on a zesty tomato base.",
+    "price": 15.99,
+    "image_url": "https://dinnerthendessert.com/wp-content/uploads/2024/07/Hawaiian-Pizza-1-2.jpg",
+    "veg": false,
+    "featured": true
+  },
+  {
+    "id": "3",
+    "name": "Margherita Pizza",
+    "description": "Fresh mozzarella, basil, and tomato sauce on a classic crust.",
+    "price": 13.99,
+    "image_url": "https://cb.scene7.com/is/image/Crate/frame-margherita-pizza-1?wid=800&qlt=70&op_sharpen=1",
+    "veg": true,
+    "featured": true
+  },
+  {
+    "id": "4",
+    "name": "Veggie Supreme",
+    "description": "Mushrooms, bell peppers, onions, olives, and tomatoes.",
+    "price": 15.99,
+    "image_url": "https://www.vegrecipesofindia.com/wp-content/uploads/2020/11/pizza-recipe-2.jpg",
+    "veg": true,
+    "featured": false
+  },
+  {
+    "id": "5",
+    "name": "BBQ Chicken Pizza",
+    "description": "Grilled chicken, red onions, and BBQ sauce with mozzarella cheese.",
+    "price": 16.99,
+    "image_url": "https://www.jessicagavin.com/wp-content/uploads/2020/07/bbq-chicken-pizza-16-1200.jpg",
+    "veg": false,
+    "featured": false
+  },
+  {
+    "id": "6",
+    "name": "Buffalo Chicken Pizza",
+    "description": "Spicy buffalo chicken, blue cheese, and mozzarella on a classic crust.",
+    "price": 16.99,
+    "image_url": "https://www.foodnetwork.com/content/dam/images/food/fullset/2015/12/21/0/FNK_Buffalo-Chicken-Pizza_s4x3.jpg",
+    "veg": false,
+    "featured": false
+  },
+  {
+    "id": "7",
+    "name": "Mushroom Truffle Pizza",
+    "description": "Assorted mushrooms, truffle oil, and mozzarella cheese.",
+    "price": 17.99,
+    "image_url": "https://www.cookingclassy.com/wp-content/uploads/2014/03/truffle-mushroom-pizza-silo.jpg",
+    "veg": true,
+    "featured": false
+  },
+  {
+    "id": "8",
+    "name": "Four Cheese Pizza",
+    "description": "Mozzarella, parmesan, gorgonzola, and ricotta cheeses.",
+    "price": 15.99,
+    "image_url": "https://www.recipetineats.com/wp-content/uploads/2020/05/Pizza-Crust-without-yeast_5-SQ.jpg",
+    "veg": true,
+    "featured": false
+  }
+] 
