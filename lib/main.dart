@@ -10,6 +10,7 @@ import 'providers/cart_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/product_provider.dart';
 import 'services/connectivity_service.dart';
+import 'services/battery_service.dart';
 import 'screens/profile_screen.dart';
 import 'screens/order_history_screen.dart';
 import 'screens/store_locator_screen.dart';
@@ -30,6 +31,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => ProductProvider()),
         Provider(create: (_) => ConnectivityService()),
+        ChangeNotifierProvider(create: (_) => BatteryService()),
       ],
       child: const MyApp(),
     ),

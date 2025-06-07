@@ -50,6 +50,7 @@ dependencies:
   camera: ^0.10.5+4
   image_picker: ^1.0.4
   connectivity_plus: ^5.0.1
+  battery_plus: ^5.0.2
   
   # Local Storage
   sqflite: ^2.3.0
