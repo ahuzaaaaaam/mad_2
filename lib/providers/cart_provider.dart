@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../models/product.dart';
 import '../services/database_helper.dart';
+import '../services/data_sync_service.dart';
 
 class CartItem {
   final String id;
@@ -26,13 +27,26 @@ class CartItem {
       'name': name,
       'price': price,
       'quantity': quantity,
+      'imageUrl': imageUrl,
     };
+  }
+
+  // Create from map
+  factory CartItem.fromMap(Map<String, dynamic> map) {
+    return CartItem(
+      id: map['id'],
+      name: map['name'],
+      price: map['price'] is int ? (map['price'] as int).toDouble() : map['price'],
+      imageUrl: map['imageUrl'] ?? '',
+      quantity: map['quantity'] ?? 1,
+    );
   }
 }
 
 class CartProvider with ChangeNotifier {
   final Map<String, CartItem> _items = {};
   final DatabaseHelper _dbHelper = DatabaseHelper();
+  bool _isInitialized = false;
 
   Map<String, CartItem> get items => {..._items};
   int get itemCount => _items.length;
@@ -43,6 +57,47 @@ class CartProvider with ChangeNotifier {
       total += item.price * item.quantity;
     });
     return total;
+  }
+  
+  // Initialize cart from local storage
+  Future<void> init() async {
+    if (_isInitialized) return;
+    
+    try {
+      final cartData = await DataSyncService.getLocalCart();
+      
+      if (cartData.isNotEmpty) {
+        _items.clear();
+        
+        for (var item in cartData) {
+          try {
+            final cartItem = CartItem.fromMap(item);
+            _items[cartItem.id] = cartItem;
+          } catch (e) {
+            print('Error parsing cart item: $e');
+            // Skip this item and continue
+          }
+        }
+        
+        notifyListeners();
+      }
+      
+      _isInitialized = true;
+    } catch (e) {
+      print('Error initializing cart: $e');
+      // Continue with empty cart
+      _isInitialized = true;
+    }
+  }
+  
+  // Save cart to local storage
+  Future<void> _saveCartToLocal() async {
+    try {
+      final cartItems = _items.values.map((item) => item.toMap()).toList();
+      await DataSyncService.saveCartToLocal(cartItems);
+    } catch (e) {
+      print('Error saving cart to local storage: $e');
+    }
   }
 
   // Add item to cart
@@ -74,6 +129,7 @@ class CartProvider with ChangeNotifier {
         ),
       );
     }
+    _saveCartToLocal();
     notifyListeners();
   }
 
@@ -90,6 +146,7 @@ class CartProvider with ChangeNotifier {
   // Remove item from cart
   void removeItem(String id) {
     _items.remove(id);
+    _saveCartToLocal();
     notifyListeners();
   }
 
@@ -110,6 +167,7 @@ class CartProvider with ChangeNotifier {
       } else {
         _items.remove(id);
       }
+      _saveCartToLocal();
       notifyListeners();
     }
   }
@@ -117,27 +175,45 @@ class CartProvider with ChangeNotifier {
   // Clear cart
   void clear() {
     _items.clear();
+    _saveCartToLocal();
     notifyListeners();
   }
 
-  // Save order to database
+  // Save order to local database and order history
   Future<bool> saveOrder() async {
+    if (_items.isEmpty) return false;
+
     try {
-      if (_items.isEmpty) return false;
+      final orderItems = _items.values.map((item) => item.toMap()).toList();
+      
+      // Create the order object
+      final order = {
+        'id': DateTime.now().millisecondsSinceEpoch.toString(),
+        'total_amount': totalAmount,
+        'item_count': itemCount,
+        'items': orderItems,
+        'date': DateTime.now().toIso8601String(),
+        'status': 'Completed'
+      };
 
-      final orderItems = _items.values.map((item) => {
-        'id': item.id,
-        'name': item.name,
-        'price': item.price,
-        'quantity': item.quantity,
-      }).toList();
-
-      await _dbHelper.saveOrder(
-        totalAmount,
-        itemCount,
-        orderItems,
-      );
-
+      // Try to save to database, but don't fail if it doesn't work
+      try {
+        await _dbHelper.saveOrder(
+          totalAmount,
+          itemCount,
+          orderItems,
+        );
+        print('Order saved to local database');
+      } catch (dbError) {
+        print('Database save error (continuing anyway): $dbError');
+        // Continue even if database save fails
+      }
+      
+      // Add to order history JSON file (this is the most important part)
+      await DataSyncService.addOrderToHistory(order);
+      print('Order saved to JSON history file');
+      
+      // Clear the cart
       clear();
       return true;
     } catch (e) {

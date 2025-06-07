@@ -227,4 +227,18 @@ class ApiService {
   static int min(int a, int b) {
     return a < b ? a : b;
   }
+
+  // Get order history - NOTE: This is not used, we use local JSON files instead
+  static Future<List<dynamic>> getOrderHistory() async {
+    // Return empty list as we only use local JSON storage for orders
+    print('Using local JSON for order history instead of API');
+    return [];
+  }
+
+  // Save order to API - NOTE: This is not used, we use local JSON files instead
+  static Future<bool> saveOrder(Map<String, dynamic> order) async {
+    // Always return false as we only use local JSON storage for orders
+    print('Using local JSON for order saving instead of API');
+    return false;
+  }
 } 

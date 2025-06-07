@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import '../models/product.dart';
 import '../services/api_service.dart';
 import '../services/database_helper.dart';
+import '../services/data_sync_service.dart';
 
 enum ProductLoadingStatus {
   initial,
@@ -33,35 +34,19 @@ class ProductProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      // Check if we're online
-      final isOnline = await ApiService.isOnline();
-      
-      List<dynamic> productData = [];
-      bool apiSuccess = false;
-      
-      if (isOnline) {
-        try {
-          // Fetch from API with a timeout
-          productData = await ApiService.getProducts();
-          apiSuccess = productData.isNotEmpty;
-        } catch (e) {
-          print('API fetch error: ${e.toString()}');
-          apiSuccess = false;
-        }
-        
-        // If API call fails, use local data
-        if (!apiSuccess) {
-          print('API fetch failed, using local data');
-          productData = await ApiService.getLocalProducts();
-        }
-      } else {
-        // Use local data if offline
-        print('Device is offline, using local data');
-        productData = await ApiService.getLocalProducts();
-      }
+      // Use the data sync service to get products with automatic syncing
+      final productData = await DataSyncService.syncProducts();
       
       // Convert to Product objects
-      _products = productData.map((json) => Product.fromJson(json)).toList();
+      _products = [];
+      for (var json in productData) {
+        try {
+          _products.add(Product.fromJson(json));
+        } catch (e) {
+          print('Error parsing product: $e');
+          // Skip this item and continue
+        }
+      }
       
       // Filter featured products
       _featuredProducts = _products.where((product) => product.isFeatured).toList();
@@ -74,6 +59,29 @@ class ProductProvider with ChangeNotifier {
       _status = ProductLoadingStatus.error;
       _errorMessage = 'Failed to load products: ${e.toString()}';
       print('Product provider error: $_errorMessage');
+      
+      // Try to load from local storage as fallback
+      try {
+        final productData = await DataSyncService.getLocalProducts();
+        _products = [];
+        for (var json in productData) {
+          try {
+            _products.add(Product.fromJson(json));
+          } catch (e) {
+            print('Error parsing product (fallback): $e');
+            // Skip this item and continue
+          }
+        }
+        _featuredProducts = _products.where((product) => product.isFeatured).toList();
+        await loadFavorites().catchError((e) {
+          print('Error loading favorites: $e');
+          // Continue without favorites
+        });
+        _status = ProductLoadingStatus.loaded;
+      } catch (fallbackError) {
+        print('Fallback error: $fallbackError');
+        // Keep error status
+      }
     }
     
     notifyListeners();
