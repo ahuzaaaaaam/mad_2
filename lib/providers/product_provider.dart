@@ -36,18 +36,27 @@ class ProductProvider with ChangeNotifier {
       // Check if we're online
       final isOnline = await ApiService.isOnline();
       
-      List<dynamic> productData;
+      List<dynamic> productData = [];
+      bool apiSuccess = false;
       
       if (isOnline) {
-        // Fetch from API
-        productData = await ApiService.getProducts();
+        try {
+          // Fetch from API with a timeout
+          productData = await ApiService.getProducts();
+          apiSuccess = productData.isNotEmpty;
+        } catch (e) {
+          print('API fetch error: ${e.toString()}');
+          apiSuccess = false;
+        }
         
         // If API call fails, use local data
-        if (productData.isEmpty) {
+        if (!apiSuccess) {
+          print('API fetch failed, using local data');
           productData = await ApiService.getLocalProducts();
         }
       } else {
         // Use local data if offline
+        print('Device is offline, using local data');
         productData = await ApiService.getLocalProducts();
       }
       
@@ -64,6 +73,7 @@ class ProductProvider with ChangeNotifier {
     } catch (e) {
       _status = ProductLoadingStatus.error;
       _errorMessage = 'Failed to load products: ${e.toString()}';
+      print('Product provider error: $_errorMessage');
     }
     
     notifyListeners();

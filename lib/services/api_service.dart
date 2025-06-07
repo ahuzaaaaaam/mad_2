@@ -1,13 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:async';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import '../config/app_config.dart';
 
 class ApiService {
-  // Base URL for API calls - update with your actual server address
-  static const String baseUrl = 'http://localhost:8000/api';
+  // Base URL for API calls - from config
+  static final String baseUrl = AppConfig.apiBaseUrl;
   
   // Token key for storage
   static const String tokenKey = 'auth_token';
@@ -52,7 +54,7 @@ class ApiService {
           'password': password,
           'device_name': 'flutter_app',
         }),
-      );
+      ).timeout(Duration(seconds: AppConfig.loginTimeout));
 
       print('Login response status: ${response.statusCode}');
       print('Login response body: ${response.body}');
@@ -65,6 +67,10 @@ class ApiService {
       } else {
         return {'success': false, 'message': data['message'] ?? 'Login failed'};
       }
+    } on TimeoutException {
+      return {'success': false, 'message': 'Connection timed out. Please try again.'};
+    } on SocketException {
+      return {'success': false, 'message': 'Network error. Please check your internet connection.'};
     } catch (e) {
       print('Login error: ${e.toString()}');
       return {'success': false, 'message': 'Network error: ${e.toString()}'};
@@ -123,7 +129,7 @@ class ApiService {
       final response = await http.get(
         Uri.parse('$baseUrl/products'),
         headers: await getHeaders(),
-      );
+      ).timeout(Duration(seconds: AppConfig.defaultTimeout));
 
       print('Products API response status: ${response.statusCode}');
       if (response.statusCode == 200) {
@@ -132,11 +138,13 @@ class ApiService {
         return data['data'] ?? [];
       }
       print('Failed to fetch products. Status: ${response.statusCode}');
-      return [];
+      
+      // If API call fails, fall back to local data
+      return await getLocalProducts();
     } catch (e) {
       print('Error fetching products: ${e.toString()}');
-      // Return empty list on error
-      return [];
+      // Return local products on error
+      return await getLocalProducts();
     }
   }
 
@@ -199,9 +207,18 @@ class ApiService {
     }
     
     try {
-      final result = await InternetAddress.lookup('google.com');
-      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+      // Try to connect to the actual API server instead of google.com
+      final result = await http.get(
+        Uri.parse('$baseUrl/test'),
+        headers: {'Accept': 'application/json'},
+      ).timeout(Duration(seconds: AppConfig.connectivityCheckTimeout));
+      
+      return result.statusCode == 200;
     } on SocketException catch (_) {
+      return false;
+    } on TimeoutException catch (_) {
+      return false;
+    } catch (_) {
       return false;
     }
   }

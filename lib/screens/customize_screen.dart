@@ -42,7 +42,7 @@ class _CustomizeScreenState extends State<CustomizeScreen> {
     'Bacon': 1.50,
     'Chicken': 2.00,
   };
-  
+
   double get _totalPrice {
     double basePrice = _basePrices[_selectedBase] ?? 0;
     double saucePrice = _selectedSauce.isEmpty ? 0 : (_saucePrices[_selectedSauce] ?? 0);
@@ -86,8 +86,8 @@ class _CustomizeScreenState extends State<CustomizeScreen> {
       description += ', Toppings: ${_selectedToppings.join(", ")}';
     } else {
       description += ', No Extra Toppings';
-    }
-    
+  }
+
     // Create custom pizza product
     final customPizza = Product(
       id: 'custom-${DateTime.now().millisecondsSinceEpoch}',
@@ -138,8 +138,8 @@ class _CustomizeScreenState extends State<CustomizeScreen> {
             elevation: 4,
             shadowColor: Colors.black.withOpacity(0.3),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            child: Column(
-              children: [
+              child: Column(
+                children: [
                 _buildBaseOption('Thin Crust', _basePrices['Thin Crust']!),
                 _buildBaseOption('Regular Crust', _basePrices['Regular Crust']!),
                 _buildBaseOption('Thick Crust', _basePrices['Thick Crust']!),
@@ -153,9 +153,9 @@ class _CustomizeScreenState extends State<CustomizeScreen> {
           Text(
             'Sauce',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
           const SizedBox(height: 8),
           Card(
             elevation: 4,
@@ -166,7 +166,7 @@ class _CustomizeScreenState extends State<CustomizeScreen> {
                 _buildSauceOption('BBQ', _saucePrices['BBQ']!),
                 _buildSauceOption('Garlic', _saucePrices['Garlic']!),
                 _buildSauceOption('Pesto', _saucePrices['Pesto']!),
-              ],
+                ],
             ),
           ),
           const SizedBox(height: 24),
@@ -194,7 +194,7 @@ class _CustomizeScreenState extends State<CustomizeScreen> {
                 physics: const NeverScrollableScrollPhysics(),
                 children: _toppingPrices.keys.map((topping) {
                   return _buildToppingChip(topping, _toppingPrices[topping]!);
-                }).toList(),
+                    }).toList(),
               ),
             ),
           ),
@@ -212,25 +212,25 @@ class _CustomizeScreenState extends State<CustomizeScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
                         'Total Price',
-                        style: TextStyle(
+                    style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Text(
-                        '\$${_totalPrice.toStringAsFixed(2)}',
+                          ),
+                    ),
+                    Text(
+                      '\$${_totalPrice.toStringAsFixed(2)}',
                         style: TextStyle(
                           fontSize: 24,
-                          fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.bold,
                           color: Theme.of(context).primaryColor,
-                        ),
-                      ),
-                    ],
-                  ),
+                          ),
+                    ),
+                  ],
+                ),
                   ElevatedButton(
                     onPressed: _addToCart,
                     style: ElevatedButton.styleFrom(
@@ -248,7 +248,7 @@ class _CustomizeScreenState extends State<CustomizeScreen> {
                     ),
                   ),
                 ],
-              ),
+                ),
             ),
           ),
         ],

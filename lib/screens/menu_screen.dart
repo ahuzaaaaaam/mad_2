@@ -187,31 +187,31 @@ class _MenuScreenState extends State<MenuScreen> {
             child: Column(
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: ['All', 'Veg', 'Non-Veg'].map((category) {
-                    final isSelected = _selectedCategory == category;
-                    return InkWell(
-                      onTap: () {
-                        setState(() {
-                          _selectedCategory = category;
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: isSelected ? Colors.red : Colors.transparent,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          category,
-                          style: TextStyle(
-                            color: isSelected ? Colors.white : Theme.of(context).textTheme.bodyLarge?.color,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: ['All', 'Veg', 'Non-Veg'].map((category) {
+                final isSelected = _selectedCategory == category;
+                return InkWell(
+                  onTap: () {
+                    setState(() {
+                      _selectedCategory = category;
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: isSelected ? Colors.red : Colors.transparent,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      category,
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : Theme.of(context).textTheme.bodyLarge?.color,
+                        fontWeight: FontWeight.bold,
                       ),
-                    );
-                  }).toList(),
+                    ),
+                  ),
+                );
+              }).toList(),
                 ),
                 const SizedBox(height: 12),
                 // Shake to randomize button

@@ -100,10 +100,10 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Featured Products',
+              'Featured Products',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                fontWeight: FontWeight.bold,
+              ),
                 ),
                 TextButton(
                   onPressed: () {
@@ -211,36 +211,36 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ListView.builder(
         physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        itemCount: products.length,
-        itemBuilder: (context, index) {
-          final product = products[index];
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: ProductCard(
+                shrinkWrap: true,
+                itemCount: products.length,
+                itemBuilder: (context, index) {
+                  final product = products[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: ProductCard(
               id: product.id,
               name: product.name,
               description: product.description,
               price: product.price,
               imageUrl: product.imageUrl,
               isVeg: product.isVeg,
-              onAddToCart: () {
+                      onAddToCart: () {
                 cartProvider.addProduct(product);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
                     content: Text('Added ${product.name} to cart'),
-                    action: SnackBarAction(
-                      label: 'View Cart',
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/cart');
+                            action: SnackBarAction(
+                              label: 'View Cart',
+                              onPressed: () {
+                                Navigator.pushNamed(context, '/cart');
+                              },
+                            ),
+                          ),
+                        );
                       },
                     ),
-                  ),
-                );
-              },
-            ),
-          );
-        },
+                  );
+                },
       ),
     );
   }
