@@ -100,7 +100,6 @@ class _MenuScreenState extends State<MenuScreen> {
       _isShakeToRandomizeActive = !_isShakeToRandomizeActive;
       
       if (_isShakeToRandomizeActive) {
-        _startShakeListener();
         _showShakeInstructions();
       } else {
         _stopShakeListener();
@@ -118,6 +117,8 @@ class _MenuScreenState extends State<MenuScreen> {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
+              // Start listening for shake events only after user confirms
+              _startShakeListener();
             },
             child: const Text('OK'),
           ),

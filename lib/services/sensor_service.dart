@@ -3,8 +3,8 @@ import 'dart:math';
 import 'package:sensors_plus/sensors_plus.dart';
 
 class SensorService {
-  // Shake detection threshold
-  static const double _shakeThreshold = 10.0;
+  // Shake detection threshold - increased for less sensitivity
+  static const double _shakeThreshold = 35.0; // Increased from 20.0
   
   // Minimum time between two shake events (in milliseconds)
   static const int _minTimeBetweenShakes = 1000;
@@ -18,11 +18,17 @@ class SensorService {
   // Stream controller for shake events
   final _shakeStreamController = StreamController<void>.broadcast();
   
+  // Flag to stop after one shake
+  bool _stopAfterOneShake = true;
+  
   // Public stream of shake events
   Stream<void> get shakeStream => _shakeStreamController.stream;
 
   // Start monitoring for shake events
-  void startAccelerometerListening() {
+  void startAccelerometerListening({bool stopAfterOneShake = true}) {
+    // Reset the flag
+    _stopAfterOneShake = stopAfterOneShake;
+    
     _accelerometerSubscription = accelerometerEvents.listen((AccelerometerEvent event) {
       _detectShake(event);
     });
@@ -50,6 +56,11 @@ class SensorService {
       if (_lastShakeTime == null || now.difference(_lastShakeTime!).inMilliseconds > _minTimeBetweenShakes) {
         _lastShakeTime = now;
         _shakeStreamController.add(null); // Emit shake event
+        
+        // If configured to stop after one shake, stop listening
+        if (_stopAfterOneShake) {
+          stopAccelerometerListening();
+        }
       }
     }
   }

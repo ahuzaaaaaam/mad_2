@@ -126,6 +126,14 @@ class ApiService {
   static Future<List<dynamic>> getProducts() async {
     try {
       print('Fetching products from API: $baseUrl/products');
+      
+      // First check if we're online
+      final bool online = await isOnline();
+      if (!online) {
+        print('Device is offline, using local products');
+        return await getLocalProducts();
+      }
+      
       final response = await http.get(
         Uri.parse('$baseUrl/products'),
         headers: await getHeaders(),
@@ -134,12 +142,18 @@ class ApiService {
       print('Products API response status: ${response.statusCode}');
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print('Products API response: ${response.body.substring(0, min(100, response.body.length))}...');
+        print('Products API response success, retrieved ${(data['data'] as List?)?.length ?? 0} products');
         return data['data'] ?? [];
       }
       print('Failed to fetch products. Status: ${response.statusCode}');
       
       // If API call fails, fall back to local data
+      return await getLocalProducts();
+    } on TimeoutException catch (_) {
+      print('API request timed out, using local products');
+      return await getLocalProducts();
+    } on SocketException catch (_) {
+      print('Network error (SocketException), using local products');
       return await getLocalProducts();
     } catch (e) {
       print('Error fetching products: ${e.toString()}');
@@ -199,27 +213,45 @@ class ApiService {
     }
   }
 
-  // Check if device is online
+  // Check if online and API is reachable
   static Future<bool> isOnline() async {
     if (kIsWeb) {
-      // For web, we can't reliably check connectivity, so assume online
-      return true;
-    }
-    
-    try {
-      // Try to connect to the actual API server instead of google.com
-      final result = await http.get(
-        Uri.parse('$baseUrl/test'),
-        headers: {'Accept': 'application/json'},
-      ).timeout(Duration(seconds: AppConfig.connectivityCheckTimeout));
-      
-      return result.statusCode == 200;
-    } on SocketException catch (_) {
-      return false;
-    } on TimeoutException catch (_) {
-      return false;
-    } catch (_) {
-      return false;
+      try {
+        final response = await http.get(
+          Uri.parse('$baseUrl/ping'),
+          headers: {'Accept': 'application/json'},
+        ).timeout(const Duration(seconds: 5));
+        return response.statusCode == 200;
+      } catch (e) {
+        print('API connectivity check failed: $e');
+        return false;
+      }
+    } else {
+      try {
+        // More robust connectivity check for mobile
+        final List<InternetAddress> result = await InternetAddress.lookup('google.com');
+        final bool hasConnection = result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+        
+        if (hasConnection) {
+          // If internet is available, check if our API is reachable
+          try {
+            final response = await http.get(
+              Uri.parse('$baseUrl/products'),
+              headers: {'Accept': 'application/json'},
+            ).timeout(const Duration(seconds: 3));
+            
+            return response.statusCode >= 200 && response.statusCode < 400;
+          } catch (e) {
+            print('API endpoint check failed: $e');
+            return false;
+          }
+        }
+        
+        return false;
+      } on SocketException catch (_) {
+        print('No internet connection available');
+        return false;
+      }
     }
   }
   

@@ -94,7 +94,7 @@ class _CustomizeScreenState extends State<CustomizeScreen> {
       name: 'Custom Pizza',
       description: description,
       price: _totalPrice,
-      imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591',
+      imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=80',
       isVeg: _isVegetarian,
     );
     
@@ -119,7 +119,7 @@ class _CustomizeScreenState extends State<CustomizeScreen> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
               image: const DecorationImage(
-                image: NetworkImage('https://images.unsplash.com/photo-1513104890138-7c749659a591'),
+                image: NetworkImage('https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=80'),
                 fit: BoxFit.cover,
               ),
             ),
