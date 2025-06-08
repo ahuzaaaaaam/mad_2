@@ -4,7 +4,7 @@ import 'package:sensors_plus/sensors_plus.dart';
 
 class SensorService {
   // Shake detection threshold - increased for less sensitivity
-  static const double _shakeThreshold = 35.0; // Increased from 20.0
+  static const double _shakeThreshold = 28.0; // Changed from 35.0 to 28.0
   
   // Minimum time between two shake events (in milliseconds)
   static const int _minTimeBetweenShakes = 1000;

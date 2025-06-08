@@ -136,6 +136,11 @@ class _MenuScreenState extends State<MenuScreen> {
     if (randomProduct != null) {
       cartProvider.addProduct(randomProduct);
       
+      // Reset the shake to randomize state
+      setState(() {
+        _isShakeToRandomizeActive = false;
+      });
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Added ${randomProduct.name} to cart'),
