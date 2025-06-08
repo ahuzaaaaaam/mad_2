@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 import '../services/api_service.dart';
+import 'dart:convert';
 
 class AuthProvider with ChangeNotifier {
   User? _user;
@@ -34,7 +35,7 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Register with API
+  // Register with local storage (no API available)
   Future<bool> register({
     required String name,
     required String email,
@@ -44,14 +45,70 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final result = await ApiService.register(name, email, password);
-      return result['success'] == true;
+      // Skip API registration attempt and directly use mockRegister
+      return await mockRegister(name: name, email: email, password: password);
     } catch (e) {
       print('Registration error: $e');
       return false;
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  // Mock register for offline mode or testing
+  Future<bool> mockRegister({
+    required String name,
+    required String email,
+    required String password,
+  }) async {
+    try {
+      await Future.delayed(const Duration(seconds: 1)); // Simulate API call
+      
+      // Get existing users from SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final String? usersJson = prefs.getString('mock_users');
+      
+      // Parse existing users or create empty map
+      Map<String, dynamic> mockUsers = {};
+      if (usersJson != null) {
+        mockUsers = json.decode(usersJson);
+      }
+      
+      // Check if email already exists
+      if (mockUsers.containsKey(email)) {
+        return false; // Email already registered
+      }
+      
+      // Create new user
+      final newUser = {
+        'id': DateTime.now().millisecondsSinceEpoch.toString(),
+        'name': name,
+        'email': email,
+        'role': 'user',
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+      
+      // Add user to mock users
+      mockUsers[email] = newUser;
+      
+      // Add password to mock passwords
+      final String? passwordsJson = prefs.getString('mock_passwords');
+      Map<String, dynamic> mockPasswords = {};
+      if (passwordsJson != null) {
+        mockPasswords = json.decode(passwordsJson);
+      }
+      mockPasswords[email] = password;
+      
+      // Save updated users and passwords
+      await prefs.setString('mock_users', json.encode(mockUsers));
+      await prefs.setString('mock_passwords', json.encode(mockPasswords));
+      
+      return true;
+    } catch (e) {
+      print('Mock registration error: $e');
+      return false;
     }
   }
 
@@ -95,8 +152,8 @@ class AuthProvider with ChangeNotifier {
     try {
       await Future.delayed(const Duration(seconds: 1)); // Simulate API call
       
-      // Mockup users
-      final Map<String, Map<String, dynamic>> mockUsers = {
+      // Default mockup users
+      Map<String, Map<String, dynamic>> defaultMockUsers = {
         'user@user.com': {
           'id': '1',
           'name': 'John Doe',
@@ -115,10 +172,33 @@ class AuthProvider with ChangeNotifier {
         },
       };
 
-      final Map<String, String> mockPasswords = {
+      Map<String, String> defaultMockPasswords = {
         'user@user.com': '123456',
         'admin@admin.com': '123456',
       };
+      
+      // Get registered users from SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final String? usersJson = prefs.getString('mock_users');
+      final String? passwordsJson = prefs.getString('mock_passwords');
+      
+      // Combine default and registered users
+      Map<String, Map<String, dynamic>> mockUsers = {...defaultMockUsers};
+      Map<String, String> mockPasswords = {...defaultMockPasswords};
+      
+      if (usersJson != null) {
+        final Map<String, dynamic> registeredUsers = json.decode(usersJson);
+        registeredUsers.forEach((key, value) {
+          mockUsers[key] = Map<String, dynamic>.from(value);
+        });
+      }
+      
+      if (passwordsJson != null) {
+        final Map<String, dynamic> registeredPasswords = json.decode(passwordsJson);
+        registeredPasswords.forEach((key, value) {
+          mockPasswords[key] = value.toString();
+        });
+      }
 
       final mockUser = mockUsers[email];
       final correctPassword = mockPasswords[email];
@@ -127,7 +207,6 @@ class AuthProvider with ChangeNotifier {
         _user = User.fromJson(mockUser);
         
         // Save to SharedPreferences
-        final prefs = await SharedPreferences.getInstance();
         await prefs.setString('user_email', email);
         return true;
       } else {

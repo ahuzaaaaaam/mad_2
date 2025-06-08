@@ -1,16 +1,31 @@
-# mad_mobile
+# PizzApp - Flutter Mobile Application
 
-A new Flutter project.
+A Flutter mobile application for ordering pizzas and other food items.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+- Product catalog from API with local JSON fallback
+- Shopping cart with local JSON storage
+- Order history with local JSON storage
+- Battery status monitoring
+- Shake to add random product (accelerometer)
+- Store locator with maps integration
+- Settings with appearance options
 
-A few resources to get you started if this is your first Flutter project:
+## Data Storage
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+This application uses a hybrid approach for data storage:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- **Products**: Fetched from the API at `https://ssp-sem2-host.onrender.com/api/products` with local JSON fallback
+- **Cart**: Stored locally in JSON files for mobile devices, with in-memory fallback for web
+- **Order History**: Stored locally in JSON files for mobile devices, with in-memory fallback for web
+
+Local JSON files are stored in the application documents directory and provide offline functionality.
+
+## APIs
+
+The application interacts with a Laravel backend API at `https://ssp-sem2-host.onrender.com/api/` for product data.
+
+## Dependencies
+
+See the `pubspec.yaml` file for a complete list of dependencies.
